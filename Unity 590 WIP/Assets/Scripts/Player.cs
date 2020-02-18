@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
+
+public enum AttachmentRule{KeepRelative,KeepWorld,SnapToTarget}
 
 public class Player : MonoBehaviour
 {
@@ -13,11 +16,19 @@ public class Player : MonoBehaviour
     public TextMesh inventoryMessage;
     public TextMesh scoreMessage;
 
+    private GameObject testerObject;
+    public TextMesh testerMessage;
+
     public Camera oculusCam;
 
     int coinPointValue;
     int treasureChestPointValue;
     int diamondPointValue;
+
+    int coinPointValueB;
+    int treasureChestPointValueB;
+    int diamondPointValueB;
+    int pearlPointValueB;
 
     int score = 0;
 
@@ -31,6 +42,17 @@ public class Player : MonoBehaviour
     private Things treasureChest;
     private Things diamond;
 
+    private Things coinB;
+    private Things treasureChestB;
+    private Things diamondB;
+    private Things pearlB;
+
+    public GameObject leftPointerObject;
+    public GameObject rightPointerObject;
+    public LayerMask collectiblesMask;
+    Things thingIGrabbed;
+    Vector3 previousPointerPos;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -38,9 +60,24 @@ public class Player : MonoBehaviour
         GameObject treasureChestObj = GameObject.Find("Treasure Chest");
         GameObject diamondObj = GameObject.Find("Diamond");
 
+        GameObject coinObjB = GameObject.Find("Coin Box");
+        GameObject treasureChestObjB = GameObject.Find("Treasure Chest Box");
+        GameObject diamondObjB = GameObject.Find("Diamond Box");
+        GameObject pearlObjB = GameObject.Find("Pearl Box");
+
         coin = coinObj.GetComponent<Things>();
         treasureChest = treasureChestObj.GetComponent<Things>();
         diamond = diamondObj.GetComponent<Things>();
+
+        coinB = coinObjB.GetComponent<Things>();
+        treasureChestB = treasureChestObjB.GetComponent<Things>();
+        diamondB = diamondObjB.GetComponent<Things>();
+        pearlB = pearlObjB.GetComponent<Things>();
+
+        coinPointValueB = coinB.pointValue;
+        treasureChestPointValueB = treasureChestB.pointValue;
+        diamondPointValueB = diamondB.pointValue;
+        pearlPointValueB = pearlB.pointValue;
 
         coinPointValue = coin.pointValue;
         treasureChestPointValue = treasureChest.pointValue;
@@ -58,94 +95,163 @@ public class Player : MonoBehaviour
         winMessage.color = Color.green;
 
         inventoryMessageObject = GameObject.Find("Inventory Message");
-        inventoryMessage.text = "Inventory Text!";
-        inventoryMessageObject.SetActive(false);
+        inventoryMessage.text = "Inventory Text :|";
+        // inventoryMessageObject.SetActive(false);
         inventoryMessage.color = Color.black;
 
         inventoryMessageOn = false;
         scoreMessageOn = false;
 
         scoreMessageObject = GameObject.Find("Score Message");
-        scoreMessageObject.SetActive(false);
+        scoreMessage.color = Color.black;
+        // scoreMessageObject.SetActive(false);
+
+        // testerMessage.text = "good";
     }
 
     // Update is called once per frame
     void Update()
     {
-         // checks to see if 20 objects have been collected (not sure if this works yet)
-    int total = 0;
-    foreach (int numOfCollectible in inventory.count) {
-        total += numOfCollectible;
+        
+// global vector
+// camera.transform.position.getY (and then go lower than that to get to fanny pack)
+
+if (OVRInput.GetDown(OVRInput.RawButton.RHandTrigger)) {
+    // scoreMessage.text = "You pressed the right grip button";
+    Collider[] overlappingThings = Physics.OverlapSphere(rightPointerObject.transform.position, 0.01f, collectiblesMask);
+    if (overlappingThings.Length>0) {
+        attachGameObjectToAChildGameObject(overlappingThings[0].gameObject, rightPointerObject, AttachmentRule.KeepWorld, AttachmentRule.KeepWorld, AttachmentRule.KeepWorld, true);
+        thingIGrabbed = overlappingThings[0].gameObject.GetComponent<Things>();
+        // scoreMessage.text = "thingIGrabbed: \r\n" + thingIGrabbed;
+    }
+} else if (OVRInput.GetUp(OVRInput.RawButton.RHandTrigger)) {
+    letGo();
+}
+
+
+
+
+        
     }
 
-    // number of collectibles in scene: 20
-    if (total == 20) {
-      winMessageObject.SetActive(true);
-    }
+    void letGo(){
+        if (thingIGrabbed){
+      
 
-// used some Raycast code from: https://docs.unity3d.com/ScriptReference/Physics.Raycast.html
-    RaycastHit hit;
-       
-        if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity )) {
-            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * hit.distance, Color.red);
-        } else {
-            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * 1000, Color.white);
-        }
+                if(rightPointerObject.gameObject.transform.position.y < oculusCam.transform.position.y - 0.2 
+                && rightPointerObject.gameObject.transform.position.y > oculusCam.transform.position.y - 0.6
+                && rightPointerObject.gameObject.transform.position.x < oculusCam.transform.position.x + 0.3
+                && rightPointerObject.gameObject.transform.position.x > oculusCam.transform.position.x - 0.3
+                && rightPointerObject.gameObject.transform.position.z < oculusCam.transform.position.z + 0.3
+                && rightPointerObject.gameObject.transform.position.z > oculusCam.transform.position.z - 0.3) {
+                    
+                    score = score + thingIGrabbed.gameObject.GetComponent<Things>().pointValue;
+                    detachGameObject(thingIGrabbed.gameObject,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld);
+                    simulatePhysics(thingIGrabbed.gameObject,Vector3.zero,true);
+                   
+                    scoreMessage.text = "Halie\r\nScore: " + score;
+                
 
-        if (Input.GetKeyDown("1")) {
-            Debug.Log("Key Pressed: 1");
-            Debug.Log("Object hit: " + hit.collider.gameObject);
-
-            GameObject hitObject = hit.collider.gameObject;
-            Destroy(hitObject);
-
-            Things obj = (hit.collider.gameObject).GetComponent<Things>();
-
-            score = score + obj.pointValue;
-            scoreMessage.text = "Halie\r\nScore: " + score;
-
-
-            switch(obj.pointValue) {
+            switch(thingIGrabbed.gameObject.GetComponent<Things>().pointValue) {
                 case 1:
-                    inventory.collectibles[0] = coin;
+                    inventory.collectibles[0] = coinB;
                     inventory.count[0] += 1;
                     break;
                 case 10:
-                    inventory.collectibles[1] = treasureChest;
+                    inventory.collectibles[1] = treasureChestB;
                     inventory.count[1] += 1;
                     break;
                 case 100:
-                    inventory.collectibles[2] = diamond;
+                    inventory.collectibles[2] = diamondB;
                     inventory.count[2] += 1;
+                    break;
+                case 500:
+                    inventory.collectibles[3] = pearlB;
+                    inventory.count[3] += 1;
                     break;
                 default:
                     break;
             }
 
-        updateInventory();
+             Destroy(thingIGrabbed.gameObject);
 
-        }
-
-        if (Input.GetKeyDown("2")) {
-            Debug.Log("Key Pressed: 2");
+ 
             updateInventory();
-         
-            inventoryMessageOn = !inventoryMessageOn;
-            inventoryMessageObject.SetActive(inventoryMessageOn);
-        }
 
-        if(Input.GetKeyDown("3")) {
-            Debug.Log("Key Pressed: 3");
-            scoreMessageOn = !scoreMessageOn;
-            scoreMessageObject.SetActive(scoreMessageOn);
-        }
 
-        
+
+                    thingIGrabbed=null;
+
+                } else {
+               
+                detachGameObject(thingIGrabbed.gameObject,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld);
+                simulatePhysics(thingIGrabbed.gameObject,Vector3.zero,true);
+                thingIGrabbed=null;
+                }
+            
+        }
     }
 
-    void updateInventory() {
+    public void attachGameObjectToAChildGameObject(GameObject GOToAttach, GameObject newParent, AttachmentRule locationRule, AttachmentRule rotationRule, AttachmentRule scaleRule, bool weld){
+        GOToAttach.transform.parent=newParent.transform;
+        handleAttachmentRules(GOToAttach,locationRule,rotationRule,scaleRule);
+        if (weld){
+            simulatePhysics(GOToAttach,Vector3.zero,false);
+        }
+    }
+
+     public static void detachGameObject(GameObject GOToDetach, AttachmentRule locationRule, AttachmentRule rotationRule, AttachmentRule scaleRule){
+        //making the parent null sets its parent to the world origin (meaning relative & global transforms become the same)
+        GOToDetach.transform.parent=null;
+        handleAttachmentRules(GOToDetach,locationRule,rotationRule,scaleRule);
+    }
+
+    public static void handleAttachmentRules(GameObject GOToHandle, AttachmentRule locationRule, AttachmentRule rotationRule, AttachmentRule scaleRule){
+        GOToHandle.transform.localPosition=
+        (locationRule==AttachmentRule.KeepRelative)?GOToHandle.transform.position:
+        //technically don't need to change anything but I wanted to compress into ternary
+        (locationRule==AttachmentRule.KeepWorld)?GOToHandle.transform.localPosition:
+        new Vector3(0,0,0);
+
+        //localRotation in Unity is actually a Quaternion, so we need to specifically ask for Euler angles
+        GOToHandle.transform.localEulerAngles=
+        (rotationRule==AttachmentRule.KeepRelative)?GOToHandle.transform.eulerAngles:
+        //technically don't need to change anything but I wanted to compress into ternary
+        (rotationRule==AttachmentRule.KeepWorld)?GOToHandle.transform.localEulerAngles:
+        new Vector3(0,0,0);
+
+        GOToHandle.transform.localScale=
+        (scaleRule==AttachmentRule.KeepRelative)?GOToHandle.transform.lossyScale:
+        //technically don't need to change anything but I wanted to compress into ternary
+        (scaleRule==AttachmentRule.KeepWorld)?GOToHandle.transform.localScale:
+        new Vector3(1,1,1);
+    }
+
+     public void simulatePhysics(GameObject target,Vector3 oldParentVelocity,bool simulate){
+        Rigidbody rb=target.GetComponent<Rigidbody>();
+        if (rb){
+            if (!simulate){
+                
+                Destroy(rb);
+            } 
+        } else{
+            if (simulate){
+                
+                //there's actually a problem here relative to the UE4 version since Unity doesn't have this simple "simulate physics" option
+                //The object will NOT preserve momentum when you throw it like in UE4.
+                //need to set its velocity itself.... even if you switch the kinematic/gravity settings around instead of deleting/adding rb
+                Rigidbody newRB=target.AddComponent<Rigidbody>();
+                newRB.velocity=oldParentVelocity;
+            }
+        }
+    }
+
+    public void updateInventory() {
             inventoryMessage.text = 
-            "Inventory:" + "\r\nCoin: " + inventory.count[0] + "\r\nTreasure Chest: " + inventory.count[1] + "\r\nDiamond: " + inventory.count[2];
+            "Inventory:" + "\r\nCoin: " + inventory.count[0] + "\r\nTreasure Chest: " 
+            + inventory.count[1] + "\r\nDiamond: " + inventory.count[2] 
+            + "\r\nPearl: " + inventory.count[3] + "\r\nWorth of Items: " + "\r\nCoin: " + 1
+            + "\r\nTreasure Chest: " + 10 + "\r\nDiamond: " + 100 + "\r\nPearl: " + 500;
             return;
         }
 }
