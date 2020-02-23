@@ -9,6 +9,9 @@ public class Player : MonoBehaviour
 {
 
 
+   
+    private GameObject sword;
+
     private GameObject winMessageObject;
     private GameObject inventoryMessageObject;
     private GameObject scoreMessageObject;
@@ -59,6 +62,8 @@ public class Player : MonoBehaviour
         GameObject coinObj = GameObject.Find("Coin");
         GameObject treasureChestObj = GameObject.Find("Treasure Chest");
         GameObject diamondObj = GameObject.Find("Diamond");
+
+        sword = GameObject.Find("claymore");
 
         GameObject coinObjB = GameObject.Find("Coin Box");
         GameObject treasureChestObjB = GameObject.Find("Treasure Chest Box");
@@ -117,14 +122,26 @@ public class Player : MonoBehaviour
 // camera.transform.position.getY (and then go lower than that to get to fanny pack)
 
 if (OVRInput.GetDown(OVRInput.RawButton.RHandTrigger)) {
-    // scoreMessage.text = "You pressed the right grip button";
+    inventoryMessage.text = "You pressed the right grip button";
     Collider[] overlappingThings = Physics.OverlapSphere(rightPointerObject.transform.position, 0.01f, collectiblesMask);
+    // add here to make sure its the thing that we want to be collected (so not the trees)
     if (overlappingThings.Length>0) {
         attachGameObjectToAChildGameObject(overlappingThings[0].gameObject, rightPointerObject, AttachmentRule.KeepWorld, AttachmentRule.KeepWorld, AttachmentRule.KeepWorld, true);
         thingIGrabbed = overlappingThings[0].gameObject.GetComponent<Things>();
         // scoreMessage.text = "thingIGrabbed: \r\n" + thingIGrabbed;
     }
 } else if (OVRInput.GetUp(OVRInput.RawButton.RHandTrigger)) {
+    letGo();
+} else if (OVRInput.GetDown(OVRInput.RawButton.LHandTrigger)) {
+    inventoryMessage.text = "You pressed the left grip button";
+    Collider[] overlappingThings = Physics.OverlapSphere(leftPointerObject.transform.position, 0.01f, collectiblesMask);
+    // add here to make sure its the thing that we want to be collected (so not the trees)
+    if (overlappingThings.Length>0) {
+        attachGameObjectToAChildGameObject(overlappingThings[0].gameObject, leftPointerObject, AttachmentRule.KeepWorld, AttachmentRule.KeepWorld, AttachmentRule.KeepWorld, true);
+        thingIGrabbed = overlappingThings[0].gameObject.GetComponent<Things>();
+        // scoreMessage.text = "thingIGrabbed: \r\n" + thingIGrabbed;
+    }
+} else if(OVRInput.GetUp(OVRInput.RawButton.LHandTrigger)) {
     letGo();
 }
 
@@ -138,61 +155,66 @@ if (OVRInput.GetDown(OVRInput.RawButton.RHandTrigger)) {
         if (thingIGrabbed){
       
 
-                if(rightPointerObject.gameObject.transform.position.y < oculusCam.transform.position.y - 0.2 
-                && rightPointerObject.gameObject.transform.position.y > oculusCam.transform.position.y - 0.6
-                && rightPointerObject.gameObject.transform.position.x < oculusCam.transform.position.x + 0.3
-                && rightPointerObject.gameObject.transform.position.x > oculusCam.transform.position.x - 0.3
-                && rightPointerObject.gameObject.transform.position.z < oculusCam.transform.position.z + 0.3
-                && rightPointerObject.gameObject.transform.position.z > oculusCam.transform.position.z - 0.3) {
+            //     if(rightPointerObject.gameObject.transform.position.y < oculusCam.transform.position.y - 0.2 
+            //     && rightPointerObject.gameObject.transform.position.y > oculusCam.transform.position.y - 0.6
+            //     && rightPointerObject.gameObject.transform.position.x < oculusCam.transform.position.x + 0.3
+            //     && rightPointerObject.gameObject.transform.position.x > oculusCam.transform.position.x - 0.3
+            //     && rightPointerObject.gameObject.transform.position.z < oculusCam.transform.position.z + 0.3
+            //     && rightPointerObject.gameObject.transform.position.z > oculusCam.transform.position.z - 0.3) {
                     
-                    score = score + thingIGrabbed.gameObject.GetComponent<Things>().pointValue;
-                    detachGameObject(thingIGrabbed.gameObject,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld);
-                    simulatePhysics(thingIGrabbed.gameObject,Vector3.zero,true);
+            //         score = score + thingIGrabbed.gameObject.GetComponent<Things>().pointValue;
+            //         detachGameObject(thingIGrabbed.gameObject,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld);
+            //         simulatePhysics(thingIGrabbed.gameObject,Vector3.zero,true);
                    
-                    scoreMessage.text = "Halie\r\nScore: " + score;
+            //         scoreMessage.text = "Halie\r\nScore: " + score;
                 
 
-            switch(thingIGrabbed.gameObject.GetComponent<Things>().pointValue) {
-                case 1:
-                    inventory.collectibles[0] = coinB;
-                    inventory.count[0] += 1;
-                    break;
-                case 10:
-                    inventory.collectibles[1] = treasureChestB;
-                    inventory.count[1] += 1;
-                    break;
-                case 100:
-                    inventory.collectibles[2] = diamondB;
-                    inventory.count[2] += 1;
-                    break;
-                case 500:
-                    inventory.collectibles[3] = pearlB;
-                    inventory.count[3] += 1;
-                    break;
-                default:
-                    break;
-            }
+            // switch(thingIGrabbed.gameObject.GetComponent<Things>().pointValue) {
+            //     case 1:
+            //         inventory.collectibles[0] = coinB;
+            //         inventory.count[0] += 1;
+            //         break;
+            //     case 10:
+            //         inventory.collectibles[1] = treasureChestB;
+            //         inventory.count[1] += 1;
+            //         break;
+            //     case 100:
+            //         inventory.collectibles[2] = diamondB;
+            //         inventory.count[2] += 1;
+            //         break;
+            //     case 500:
+            //         inventory.collectibles[3] = pearlB;
+            //         inventory.count[3] += 1;
+            //         break;
+            //     default:
+            //         break;
+            // }
 
-             Destroy(thingIGrabbed.gameObject);
+            //  Destroy(thingIGrabbed.gameObject);
 
  
-            updateInventory();
+            // updateInventory();
 
 
 
-                    thingIGrabbed=null;
+            //         thingIGrabbed=null;
 
-                } else {
+            //     } else {
                
                 detachGameObject(thingIGrabbed.gameObject,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld);
                 simulatePhysics(thingIGrabbed.gameObject,Vector3.zero,true);
                 thingIGrabbed=null;
-                }
+                // }
             
         }
     }
 
     public void attachGameObjectToAChildGameObject(GameObject GOToAttach, GameObject newParent, AttachmentRule locationRule, AttachmentRule rotationRule, AttachmentRule scaleRule, bool weld){
+        // if the game objects is the sword, then make enemies appear here
+        inventoryMessage.text = "Grabbed the " + GOToAttach.gameObject;
+        if (GOToAttach.gameObject == sword) {
+            inventoryMessage.text = "Got the sword, now monsters come out";
+        }
         GOToAttach.transform.parent=newParent.transform;
         handleAttachmentRules(GOToAttach,locationRule,rotationRule,scaleRule);
         if (weld){
