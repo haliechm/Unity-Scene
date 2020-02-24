@@ -11,6 +11,7 @@ public class Player : MonoBehaviour
 
    
     private GameObject sword;
+    private GameObject face;
 
     private GameObject winMessageObject;
     private GameObject inventoryMessageObject;
@@ -64,6 +65,8 @@ public class Player : MonoBehaviour
         GameObject diamondObj = GameObject.Find("Diamond");
 
         sword = GameObject.Find("claymore");
+        face = GameObject.Find("ScaryBox");
+        face.SetActive(false);
 
         GameObject coinObjB = GameObject.Find("Coin Box");
         GameObject treasureChestObjB = GameObject.Find("Treasure Chest Box");
@@ -122,7 +125,7 @@ public class Player : MonoBehaviour
 // camera.transform.position.getY (and then go lower than that to get to fanny pack)
 
 if (OVRInput.GetDown(OVRInput.RawButton.RHandTrigger)) {
-    inventoryMessage.text = "You pressed the right grip button";
+    inventoryMessage.text = "You pressed the right grip button!";
     Collider[] overlappingThings = Physics.OverlapSphere(rightPointerObject.transform.position, 0.01f, collectiblesMask);
     // add here to make sure its the thing that we want to be collected (so not the trees)
     if (overlappingThings.Length>0) {
@@ -213,7 +216,8 @@ if (OVRInput.GetDown(OVRInput.RawButton.RHandTrigger)) {
         // if the game objects is the sword, then make enemies appear here
         inventoryMessage.text = "Grabbed the " + GOToAttach.gameObject;
         if (GOToAttach.gameObject == sword) {
-            inventoryMessage.text = "Got the sword, now monsters come out";
+            inventoryMessage.text = "Got the sword, now jump scare (make face visible)";
+            face.SetActive(true);
         }
         GOToAttach.transform.parent=newParent.transform;
         handleAttachmentRules(GOToAttach,locationRule,rotationRule,scaleRule);
