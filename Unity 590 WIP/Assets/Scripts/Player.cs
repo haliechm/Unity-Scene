@@ -216,7 +216,7 @@ if (OVRInput.GetDown(OVRInput.RawButton.RHandTrigger)) {
         // if the game objects is the sword, then make enemies appear here
         inventoryMessage.text = "Grabbed the " + GOToAttach.gameObject;
         if (GOToAttach.gameObject == sword) {
-            inventoryMessage.text = "Got the sword, now jump scare (make face visible)";
+            // inventoryMessage.text = "Got the sword, now jump scare (make face visible)";
             face.SetActive(true);
         }
         GOToAttach.transform.parent=newParent.transform;
