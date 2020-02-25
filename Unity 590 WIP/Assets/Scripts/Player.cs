@@ -8,48 +8,62 @@ public enum AttachmentRule{KeepRelative,KeepWorld,SnapToTarget}
 public class Player : MonoBehaviour
 {
 
-
+    private bool justStarted;
    
     private GameObject sword;
+    private GameObject shield;
     private GameObject face;
 
     private GameObject winMessageObject;
+    // private GameObject testerObjectt;
     private GameObject inventoryMessageObject;
-    private GameObject scoreMessageObject;
+    // private GameObject scoreMessageObject;
+    private GameObject lightInFront;
     public TextMesh winMessage;
+    // public TextMesh testMessage;
     public TextMesh inventoryMessage;
-    public TextMesh scoreMessage;
+    // public TextMesh scoreMessage;
+    public TextMesh lightInFrontMessage;
 
-    private GameObject testerObject;
-    public TextMesh testerMessage;
+    private bool hasGrabbedShield = false;
+    private bool hasGrabbedSword = false;
+
+    private int numThingsCollected;
+
+    // private GameObject testerObject;
+    // public TextMesh testerMessage;
 
     public Camera oculusCam;
 
-    int coinPointValue;
-    int treasureChestPointValue;
-    int diamondPointValue;
+    // int coinPointValue;
+    // int treasureChestPointValue;
+    // int diamondPointValue;
 
-    int coinPointValueB;
-    int treasureChestPointValueB;
-    int diamondPointValueB;
-    int pearlPointValueB;
+    // int coinPointValueB;
+    // int treasureChestPointValueB;
+    // int diamondPointValueB;
+    // int pearlPointValueB;
 
-    int score = 0;
+    // int score = 0;
 
     private Bag inventory;
-    private bool inventoryMessageOn;
-    private bool scoreMessageOn;
+    // private bool inventoryMessageOn;
+    // private bool scoreMessageOn;
 
-    private int numberOfObjectsCollected;
+    // private int numberOfObjectsCollected;
 
-    private Things coin;
-    private Things treasureChest;
-    private Things diamond;
+    // private Things coin;
+    // private Things treasureChest;
+    // private Things diamond;
 
-    private Things coinB;
-    private Things treasureChestB;
-    private Things diamondB;
-    private Things pearlB;
+    // private Things coinB;
+    // private Things treasureChestB;
+    // private Things diamondB;
+    // private Things pearlB;
+
+    private Things scary00;
+    private Things scary01;
+    private Things scary02;
 
     public GameObject leftPointerObject;
     public GameObject rightPointerObject;
@@ -60,58 +74,78 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        GameObject coinObj = GameObject.Find("Coin");
-        GameObject treasureChestObj = GameObject.Find("Treasure Chest");
-        GameObject diamondObj = GameObject.Find("Diamond");
+
+        justStarted = true;
+        // testerObjectt.SetActive(false);
+        // GameObject coinObj = GameObject.Find("Coin");
+        // GameObject treasureChestObj = GameObject.Find("Treasure Chest");
+        // GameObject diamondObj = GameObject.Find("Diamond");
+
+        GameObject scaryObj00 = GameObject.Find("GrabBox00");
+        GameObject scaryObj01 = GameObject.Find("GrabBox01");
+        GameObject scaryObj02 = GameObject.Find("GrabBox02");
+
+        numThingsCollected = 0;
 
         sword = GameObject.Find("claymore");
+        shield = GameObject.Find("Shield_Mobile");
         face = GameObject.Find("ScaryBox");
         face.SetActive(false);
 
-        GameObject coinObjB = GameObject.Find("Coin Box");
-        GameObject treasureChestObjB = GameObject.Find("Treasure Chest Box");
-        GameObject diamondObjB = GameObject.Find("Diamond Box");
-        GameObject pearlObjB = GameObject.Find("Pearl Box");
+        // GameObject coinObjB = GameObject.Find("Coin Box");
+        // GameObject treasureChestObjB = GameObject.Find("Treasure Chest Box");
+        // GameObject diamondObjB = GameObject.Find("Diamond Box");
+        // GameObject pearlObjB = GameObject.Find("Pearl Box");
 
-        coin = coinObj.GetComponent<Things>();
-        treasureChest = treasureChestObj.GetComponent<Things>();
-        diamond = diamondObj.GetComponent<Things>();
+        // coin = coinObj.GetComponent<Things>();
+        // treasureChest = treasureChestObj.GetComponent<Things>();
+        // diamond = diamondObj.GetComponent<Things>();
 
-        coinB = coinObjB.GetComponent<Things>();
-        treasureChestB = treasureChestObjB.GetComponent<Things>();
-        diamondB = diamondObjB.GetComponent<Things>();
-        pearlB = pearlObjB.GetComponent<Things>();
+        scary00 = scaryObj00.GetComponent<Things>();
+        scary01 = scaryObj01.GetComponent<Things>();
+        scary02 = scaryObj02.GetComponent<Things>();
 
-        coinPointValueB = coinB.pointValue;
-        treasureChestPointValueB = treasureChestB.pointValue;
-        diamondPointValueB = diamondB.pointValue;
-        pearlPointValueB = pearlB.pointValue;
+        // coinB = coinObjB.GetComponent<Things>();
+        // treasureChestB = treasureChestObjB.GetComponent<Things>();
+        // diamondB = diamondObjB.GetComponent<Things>();
+        // pearlB = pearlObjB.GetComponent<Things>();
 
-        coinPointValue = coin.pointValue;
-        treasureChestPointValue = treasureChest.pointValue;
-        diamondPointValue = diamond.pointValue;
+        // coinPointValueB = coinB.pointValue;
+        // treasureChestPointValueB = treasureChestB.pointValue;
+        // diamondPointValueB = diamondB.pointValue;
+        // pearlPointValueB = pearlB.pointValue;
+
+        // coinPointValue = coin.pointValue;
+        // treasureChestPointValue = treasureChest.pointValue;
+        // diamondPointValue = diamond.pointValue;
 
         GameObject hunter = GameObject.Find("First Player");
         inventory = hunter.GetComponent<Bag>();
         
 
-        scoreMessage.text = "Halie\r\nScore: " + score;
+        // scoreMessage.text = "Halie\r\nScore: " + score;
 
-        winMessageObject = GameObject.Find("Win Message");
-        winMessage.text = "You Win! You have collected all 20 collectibles";
-        winMessageObject.SetActive(false);
-        winMessage.color = Color.green;
+        lightInFront.SetActive(false);
 
-        inventoryMessageObject = GameObject.Find("Inventory Message");
-        inventoryMessage.text = "Inventory Text :|";
+        // winMessageObject = GameObject.Find("Win Message");
+        // winMessage.text = "You Win! You have collected all 20 collectibles";
+        
+
+        winMessage = GameObject.Find("Win Message").GetComponent<TextMesh>();
+        winMessage.gameObject.SetActive(false);
+        // winMessageObject.SetActive(false);
+        // winMessage.color = Color.green;
+
+        // inventoryMessageObject = GameObject.Find("Inventory Message");
+        // inventoryMessage.text = "Inventory Text :|";
         // inventoryMessageObject.SetActive(false);
-        inventoryMessage.color = Color.black;
+        // inventoryMessage.color = Color.black;
 
-        inventoryMessageOn = false;
-        scoreMessageOn = false;
+        // inventoryMessageOn = false;
+        // scoreMessageOn = false;
 
-        scoreMessageObject = GameObject.Find("Score Message");
-        scoreMessage.color = Color.black;
+        // scoreMessageObject = GameObject.Find("Score Message");
+        // scoreMessage.color = Color.black;
         // scoreMessageObject.SetActive(false);
 
         // testerMessage.text = "good";
@@ -120,12 +154,20 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (justStarted) {
+            winMessage.gameObject.SetActive(false);
+            justStarted = false;
+        }
+        // for non-trap:
+        if (numThingsCollected >= 5) {
+            winMessage.gameObject.SetActive(true);
+        }
         
 // global vector
 // camera.transform.position.getY (and then go lower than that to get to fanny pack)
 
 if (OVRInput.GetDown(OVRInput.RawButton.RHandTrigger)) {
-    inventoryMessage.text = "You pressed the right grip button!";
+    // inventoryMessage.text = "You pressed the right grip button!";
     Collider[] overlappingThings = Physics.OverlapSphere(rightPointerObject.transform.position, 0.01f, collectiblesMask);
     // add here to make sure its the thing that we want to be collected (so not the trees)
     if (overlappingThings.Length>0) {
@@ -136,7 +178,7 @@ if (OVRInput.GetDown(OVRInput.RawButton.RHandTrigger)) {
 } else if (OVRInput.GetUp(OVRInput.RawButton.RHandTrigger)) {
     letGo();
 } else if (OVRInput.GetDown(OVRInput.RawButton.LHandTrigger)) {
-    inventoryMessage.text = "You pressed the left grip button";
+    // inventoryMessage.text = "You pressed the left grip button";
     Collider[] overlappingThings = Physics.OverlapSphere(leftPointerObject.transform.position, 0.01f, collectiblesMask);
     // add here to make sure its the thing that we want to be collected (so not the trees)
     if (overlappingThings.Length>0) {
@@ -158,18 +200,19 @@ if (OVRInput.GetDown(OVRInput.RawButton.RHandTrigger)) {
         if (thingIGrabbed){
       
 
-            //     if(rightPointerObject.gameObject.transform.position.y < oculusCam.transform.position.y - 0.2 
-            //     && rightPointerObject.gameObject.transform.position.y > oculusCam.transform.position.y - 0.6
-            //     && rightPointerObject.gameObject.transform.position.x < oculusCam.transform.position.x + 0.3
-            //     && rightPointerObject.gameObject.transform.position.x > oculusCam.transform.position.x - 0.3
-            //     && rightPointerObject.gameObject.transform.position.z < oculusCam.transform.position.z + 0.3
-            //     && rightPointerObject.gameObject.transform.position.z > oculusCam.transform.position.z - 0.3) {
+                if(rightPointerObject.gameObject.transform.position.y < oculusCam.transform.position.y - 0.2 
+                && rightPointerObject.gameObject.transform.position.y > oculusCam.transform.position.y - 0.6
+                && rightPointerObject.gameObject.transform.position.x < oculusCam.transform.position.x + 0.3
+                && rightPointerObject.gameObject.transform.position.x > oculusCam.transform.position.x - 0.3
+                && rightPointerObject.gameObject.transform.position.z < oculusCam.transform.position.z + 0.3
+                && rightPointerObject.gameObject.transform.position.z > oculusCam.transform.position.z - 0.3) {
                     
-            //         score = score + thingIGrabbed.gameObject.GetComponent<Things>().pointValue;
-            //         detachGameObject(thingIGrabbed.gameObject,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld);
-            //         simulatePhysics(thingIGrabbed.gameObject,Vector3.zero,true);
+                    // score = score + thingIGrabbed.gameObject.GetComponent<Things>().pointValue;
+                    detachGameObject(thingIGrabbed.gameObject,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld);
+                    simulatePhysics(thingIGrabbed.gameObject,Vector3.zero,true);
                    
-            //         scoreMessage.text = "Halie\r\nScore: " + score;
+                    // scoreMessage.text = "Halie\r\nScore: " + score;
+                    numThingsCollected = numThingsCollected + 1;
                 
 
             // switch(thingIGrabbed.gameObject.GetComponent<Things>().pointValue) {
@@ -193,31 +236,42 @@ if (OVRInput.GetDown(OVRInput.RawButton.RHandTrigger)) {
             //         break;
             // }
 
-            //  Destroy(thingIGrabbed.gameObject);
+             Destroy(thingIGrabbed.gameObject);
 
  
             // updateInventory();
 
 
 
-            //         thingIGrabbed=null;
+                    thingIGrabbed=null;
 
-            //     } else {
+                } else {
                
                 detachGameObject(thingIGrabbed.gameObject,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld);
                 simulatePhysics(thingIGrabbed.gameObject,Vector3.zero,true);
                 thingIGrabbed=null;
-                // }
+                }
             
         }
     }
 
     public void attachGameObjectToAChildGameObject(GameObject GOToAttach, GameObject newParent, AttachmentRule locationRule, AttachmentRule rotationRule, AttachmentRule scaleRule, bool weld){
         // if the game objects is the sword, then make enemies appear here
-        inventoryMessage.text = "Grabbed the " + GOToAttach.gameObject;
+        // inventoryMessage.text = "Grabbed the " + GOToAttach.gameObject;
+        if (GOToAttach.gameObject == shield) {
+        // NON TRAP VERSION COMMENT THIS LINE OUT
+            hasGrabbedShield = true;
+        }
+
         if (GOToAttach.gameObject == sword) {
             // inventoryMessage.text = "Got the sword, now jump scare (make face visible)";
+            // comment out this line to get rid of trap
+            // NON TRAP VERSION COMMENT THIS LINE OUT:
+            hasGrabbedSword = true;
+
+            // TRAP VERSION COMMENT THIS LINE OUT
             face.SetActive(true);
+            // now go to make trap door code and delete face/lights from scene
         }
         GOToAttach.transform.parent=newParent.transform;
         handleAttachmentRules(GOToAttach,locationRule,rotationRule,scaleRule);
@@ -273,11 +327,11 @@ if (OVRInput.GetDown(OVRInput.RawButton.RHandTrigger)) {
     }
 
     public void updateInventory() {
-            inventoryMessage.text = 
-            "Inventory:" + "\r\nCoin: " + inventory.count[0] + "\r\nTreasure Chest: " 
-            + inventory.count[1] + "\r\nDiamond: " + inventory.count[2] 
-            + "\r\nPearl: " + inventory.count[3] + "\r\nWorth of Items: " + "\r\nCoin: " + 1
-            + "\r\nTreasure Chest: " + 10 + "\r\nDiamond: " + 100 + "\r\nPearl: " + 500;
+            // inventoryMessage.text = 
+            // "Inventory:" + "\r\nCoin: " + inventory.count[0] + "\r\nTreasure Chest: " 
+            // + inventory.count[1] + "\r\nDiamond: " + inventory.count[2] 
+            // + "\r\nPearl: " + inventory.count[3] + "\r\nWorth of Items: " + "\r\nCoin: " + 1
+            // + "\r\nTreasure Chest: " + 10 + "\r\nDiamond: " + 100 + "\r\nPearl: " + 500;
             return;
         }
 }
