@@ -22,7 +22,7 @@ public class Player : MonoBehaviour
     public TextMesh winMessage;
     // public TextMesh testMessage;
     public TextMesh inventoryMessage;
-    // public TextMesh scoreMessage;
+    public TextMesh scoreMessage;
     public TextMesh lightInFrontMessage;
 
     private bool hasGrabbedShield = false;
@@ -133,6 +133,9 @@ public class Player : MonoBehaviour
 
         winMessage = GameObject.Find("Win Message").GetComponent<TextMesh>();
         winMessage.gameObject.SetActive(false);
+
+        scoreMessage = GameObject.Find("Score Message").GetComponent<TextMesh>();
+
         // winMessageObject.SetActive(false);
         // winMessage.color = Color.green;
 
@@ -154,14 +157,16 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
         if (justStarted) {
             winMessage.gameObject.SetActive(false);
             justStarted = false;
         }
-        // for non-trap:
-        if (numThingsCollected >= 5) {
-            winMessage.gameObject.SetActive(true);
-        }
+        // FOR TRAP VERSION COMMENT THIS IF STATEMENT OUT
+        // if (numThingsCollected >= 5) {
+        //     winMessage.gameObject.SetActive(true);
+        // }
+        scoreMessage.text = "# of Items Collected: " + numThingsCollected;
         
 // global vector
 // camera.transform.position.getY (and then go lower than that to get to fanny pack)
@@ -269,7 +274,7 @@ if (OVRInput.GetDown(OVRInput.RawButton.RHandTrigger)) {
             // NON TRAP VERSION COMMENT THIS LINE OUT:
             hasGrabbedSword = true;
 
-            // TRAP VERSION COMMENT THIS LINE OUT
+            // FOR NONTRAP VERSION COMMENT THIS LINE OUT
             face.SetActive(true);
             // now go to make trap door code and delete face/lights from scene
         }
