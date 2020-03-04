@@ -163,9 +163,9 @@ public class Player : MonoBehaviour
             justStarted = false;
         }
         // FOR TRAP VERSION COMMENT THIS IF STATEMENT OUT
-        // if (numThingsCollected >= 5) {
-        //     winMessage.gameObject.SetActive(true);
-        // }
+        if (numThingsCollected >= 5) {
+            winMessage.gameObject.SetActive(true);
+        }
         scoreMessage.text = "# of Items Collected: " + numThingsCollected;
         
 // global vector
@@ -264,18 +264,18 @@ if (OVRInput.GetDown(OVRInput.RawButton.RHandTrigger)) {
         // if the game objects is the sword, then make enemies appear here
         // inventoryMessage.text = "Grabbed the " + GOToAttach.gameObject;
         if (GOToAttach.gameObject == shield) {
-        // NON TRAP VERSION COMMENT THIS LINE OUT
+        
             hasGrabbedShield = true;
         }
 
         if (GOToAttach.gameObject == sword) {
             // inventoryMessage.text = "Got the sword, now jump scare (make face visible)";
             // comment out this line to get rid of trap
-            // NON TRAP VERSION COMMENT THIS LINE OUT:
+           
             hasGrabbedSword = true;
 
             // FOR NONTRAP VERSION COMMENT THIS LINE OUT
-            face.SetActive(true);
+            // face.SetActive(true);
             // now go to make trap door code and delete face/lights from scene
         }
         GOToAttach.transform.parent=newParent.transform;
