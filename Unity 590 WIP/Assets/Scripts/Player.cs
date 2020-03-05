@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+// using System.Math;
 
 public enum AttachmentRule{KeepRelative,KeepWorld,SnapToTarget}
 
@@ -16,10 +17,6 @@ public class Player : MonoBehaviour
     public TextMesh scoreMessage;
     private int numThingsCollected;
     public Camera oculusCam;
-    private Bag inventory;
-    private Things scary00;
-    private Things scary01;
-    private Things scary02;
     public GameObject leftPointerObject;
     public GameObject rightPointerObject;
     public LayerMask collectiblesMask;
@@ -30,6 +27,8 @@ public class Player : MonoBehaviour
     // NEW FOR A7
     Vector3 prevForwardVector;
     double prevYawRelativeToCenter;
+    public double longestDimensionOfPE;
+    public GameObject PE;
 
 
 
@@ -47,18 +46,20 @@ public class Player : MonoBehaviour
         // NEW FOR A7
         prevForwardVector = oculusCam.transform.forward;
         // WHAT IS PE? (PROGRAMMING ENVIRONMENT)
-       // prevYawRelativeToCenter = angleBetweenVectors(oculusCam.transform.forward, PE.position-oculusCam.position);
+       prevYawRelativeToCenter = angleBetweenVectors(oculusCam.transform.forward, PE.transform.position-oculusCam.transform.position);
 
-       
+       //  PE = VR ORIGIN (get rid of pe thing - pe is the guardian so it is the vr tracking space)
     }
 
     // FUNCTIONS FOR A7
-    public void d(Vector3 A, Vector3 B, Vector3 C) {
-        // return (A.x = B.x)*(C.y-B.y)-(A.y-B.y)*(C.x-B.x);
+    public double d(Vector3 A, Vector3 B, Vector3 C) {
+        return (A.x = B.x)*(C.y-B.y)-(A.y-B.y)*(C.x-B.x);
     }
 
-    public void angleBetweenVectors(Vector3 A, double B) {
-        // return arccos(dot(normalize(A), normalize(B))))
+    public double angleBetweenVectors(Vector3 A, Vector3 B) {
+        //return arccos(dot(normalize(A), normalize(B)));
+        //should this be float?
+        return Mathf.Acos(Vector3.Dot(Vector3.Normalize(A), Vector3.Normalize(B)));
     }
 
  
@@ -71,12 +72,14 @@ public class Player : MonoBehaviour
 
     // NEW CODE FOR A7
 
-    // double howMuchUserRotated = angleBetweenVectors(prevForwardVector, oculusCam.transform.forward);
-    // double directionUserRotated = (d(oculusCam.position+prevForwardVecotr, oculusCam.position, oculusCam.position+oculusCam.forward) < 0) ? 1 : -1;
-    // double deltaYawRelativeToCenter = prevYawRelativeToCenter - angleBetweenVectors(oculusCam.forward, PE.position-oculusCam.position);
-    // double distanceFromCenter = oculusCam.transform.localPosition.magnitude;
+    double howMuchUserRotated = angleBetweenVectors(prevForwardVector, oculusCam.transform.forward);
+    double directionUserRotated = (d(oculusCam.transform.position+prevForwardVector, oculusCam.transform.position, oculusCam.transform.position+oculusCam.transform.forward) < 0) ? 1 : -1;
+    double deltaYawRelativeToCenter = prevYawRelativeToCenter - angleBetweenVectors(oculusCam.transform.forward, PE.transform.position-oculusCam.transform.position);
+
+    // what is the local position to (should i parent the center object to the camera?)
+    double distanceFromCenter = oculusCam.transform.localPosition.magnitude;
     // double howMuchToAccelerate = ((deltaYawRelativeToCenter < 0) ? -decelerateThreshold[13%] : accelerateThreshold[30%])
-            // * howMuchUserRotated * directionUserRotated * clamp(distanceFromCenter/longestDimensionOfPE/2, 0, 1);
+    //         * howMuchUserRotated * directionUserRotated * clamp(distanceFromCenter/longestDimensionOfPE/2, 0, 1);
 
             // ABOVE WHAT IS LONGEST DIMENSION OF PE? IS THIS REFERRING TO THE PLANE?
 
