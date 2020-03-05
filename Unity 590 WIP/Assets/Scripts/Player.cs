@@ -2,12 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-// using System.Math;
 
 public enum AttachmentRule{KeepRelative,KeepWorld,SnapToTarget}
 
 public class Player : MonoBehaviour
 {
+
+    
+ 
+    // Position Storage Variables
+    Vector3 posOffset = new Vector3 ();
+    Vector3 tempPos = new Vector3 ();
 
     private bool justStarted;
     private GameObject winMessageObject;
@@ -16,6 +21,9 @@ public class Player : MonoBehaviour
     public TextMesh inventoryMessage;
     public TextMesh scoreMessage;
     private int numThingsCollected;
+
+
+
     public Camera oculusCam;
     public GameObject leftPointerObject;
     public GameObject rightPointerObject;
@@ -28,13 +36,20 @@ public class Player : MonoBehaviour
     Vector3 prevForwardVector;
     double prevYawRelativeToCenter;
     public double longestDimensionOfPE;
-    public GameObject PE;
+    public GameObject VRTrackingOrigin;
+
+    // Q: are we supposed to make a GameObject to hold pivot?
+    public GameObject pivot;
+
 
 
 
 
     void Start()
     {
+
+
+
 
         justStarted = true;
         numThingsCollected = 0;
@@ -44,21 +59,19 @@ public class Player : MonoBehaviour
 
 
         // NEW FOR A7
-        prevForwardVector = oculusCam.transform.forward;
-        // WHAT IS PE? (PROGRAMMING ENVIRONMENT)
-       prevYawRelativeToCenter = angleBetweenVectors(oculusCam.transform.forward, PE.transform.position-oculusCam.transform.position);
 
-       //  PE = VR ORIGIN (get rid of pe thing - pe is the guardian so it is the vr tracking space)
+        // Q: I set VRTrackingOrigin to GameObject Tracking Space (should it instead by center eye?)
+        prevForwardVector = oculusCam.transform.forward;
+        prevYawRelativeToCenter = angleBetweenVectors(oculusCam.transform.forward, VRTrackingOrigin.transform.position-oculusCam.transform.position);
+
     }
 
     // FUNCTIONS FOR A7
     public double d(Vector3 A, Vector3 B, Vector3 C) {
-        return (A.x = B.x)*(C.y-B.y)-(A.y-B.y)*(C.x-B.x);
+        return (A.x-B.x)*(C.y-B.y)-(A.y-B.y)*(C.x-B.x);
     }
 
     public double angleBetweenVectors(Vector3 A, Vector3 B) {
-        //return arccos(dot(normalize(A), normalize(B)));
-        //should this be float?
         return Mathf.Acos(Vector3.Dot(Vector3.Normalize(A), Vector3.Normalize(B)));
     }
 
@@ -74,40 +87,39 @@ public class Player : MonoBehaviour
 
     double howMuchUserRotated = angleBetweenVectors(prevForwardVector, oculusCam.transform.forward);
     double directionUserRotated = (d(oculusCam.transform.position+prevForwardVector, oculusCam.transform.position, oculusCam.transform.position+oculusCam.transform.forward) < 0) ? 1 : -1;
-    double deltaYawRelativeToCenter = prevYawRelativeToCenter - angleBetweenVectors(oculusCam.transform.forward, PE.transform.position-oculusCam.transform.position);
+    double deltaYawRelativeToCenter = prevYawRelativeToCenter - angleBetweenVectors(oculusCam.transform.forward, VRTrackingOrigin.transform.position-oculusCam.transform.position);
 
-    // what is the local position to (should i parent the center object to the camera?)
     double distanceFromCenter = oculusCam.transform.localPosition.magnitude;
-    // double howMuchToAccelerate = ((deltaYawRelativeToCenter < 0) ? -decelerateThreshold[13%] : accelerateThreshold[30%])
-    //         * howMuchUserRotated * directionUserRotated * clamp(distanceFromCenter/longestDimensionOfPE/2, 0, 1);
 
-            // ABOVE WHAT IS LONGEST DIMENSION OF PE? IS THIS REFERRING TO THE PLANE?
+    // Q: error thrown with []
+    // double howMuchToAccelerate = ((deltaYawRelativeToCenter < 0) ? -decelerateThreshold[13%] : accelerateThreshold[30%]) * howMuchUserRotated * directionUserRotated * clamp(distanceFromCenter/longestDimensionOfPE/2, 0, 1);
 
-    // make PE child of a pivot parent located at oculusCam.position
 
+    // Q: I just made pivot a empty GameObject in the scene, is that alright?
+    // Q: how to make vr tracking origin child of pivot parent
+    // make VRTrackingOrigin child of a pivot parent located at oculusCam.position
+    pivot.transform.position = oculusCam.transform.position;
+    VRTrackingOrigin.transform.parent = pivot.transform;
+
+    // Q: what is pivot?
     // pivot.rotation.yaw += howMuchToAccelerate;
 
     // unparent pivot
+    // Q: do we need to make pivot child null as well?
+    VRTrackingOrigin.transform.parent = null;
 
-    // prevForwardVecotr = oculusCam.transform.forward;
-    // prevYawRelativeToCenter = angleBetweenVectors(oculusCam.transform.forward, PE.position - oculusCam.position);
-
-
-
-
+    prevForwardVector = oculusCam.transform.forward;
+    prevYawRelativeToCenter = angleBetweenVectors(oculusCam.transform.forward, VRTrackingOrigin.transform.position - oculusCam.transform.position);
 
 
 
-
-
-
-        
         if (justStarted) {
             winMessage.gameObject.SetActive(false);
             justStarted = false;
         }
         
         if (numThingsCollected >= 5) {
+            
             winMessage.gameObject.SetActive(true);
         }
         scoreMessage.text = "Halie\n# of Items Collected: " + numThingsCollected;
@@ -223,6 +235,9 @@ public class Player : MonoBehaviour
             }
         }
     }
+
+
+
 
    
 
