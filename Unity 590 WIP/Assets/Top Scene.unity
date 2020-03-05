@@ -1336,7 +1336,6 @@ MonoBehaviour:
   collectiblesMask:
     serializedVersion: 2
     m_Bits: 1
-  longestDimensionOfPE: 0
   VRTrackingOrigin: {fileID: 1212480769}
   pivot: {fileID: 77468740}
 --- !u!4 &298664414 stripped

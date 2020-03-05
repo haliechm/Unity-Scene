@@ -11,8 +11,8 @@ public class Player : MonoBehaviour
     
  
     // Position Storage Variables
-    Vector3 posOffset = new Vector3 ();
-    Vector3 tempPos = new Vector3 ();
+    // Vector3 posOffset = new Vector3 ();
+    // Vector3 tempPos = new Vector3 ();
 
     private bool justStarted;
     private GameObject winMessageObject;
@@ -22,7 +22,9 @@ public class Player : MonoBehaviour
     public TextMesh scoreMessage;
     private int numThingsCollected;
 
-
+// questions:
+// do we make pivot an actual game object?
+// how much to accelerate all wrong
 
     public Camera oculusCam;
     public GameObject leftPointerObject;
@@ -34,8 +36,8 @@ public class Player : MonoBehaviour
 
     // NEW FOR A7
     Vector3 prevForwardVector;
-    double prevYawRelativeToCenter;
-    public double longestDimensionOfPE;
+    float prevYawRelativeToCenter;
+    // public double longestDimensionOfPE;
     public GameObject VRTrackingOrigin;
 
     // Q: are we supposed to make a GameObject to hold pivot?
@@ -64,14 +66,15 @@ public class Player : MonoBehaviour
         prevForwardVector = oculusCam.transform.forward;
         prevYawRelativeToCenter = angleBetweenVectors(oculusCam.transform.forward, VRTrackingOrigin.transform.position-oculusCam.transform.position);
 
+
     }
 
     // FUNCTIONS FOR A7
-    public double d(Vector3 A, Vector3 B, Vector3 C) {
+    public float d(Vector3 A, Vector3 B, Vector3 C) {
         return (A.x-B.x)*(C.y-B.y)-(A.y-B.y)*(C.x-B.x);
     }
 
-    public double angleBetweenVectors(Vector3 A, Vector3 B) {
+    public float angleBetweenVectors(Vector3 A, Vector3 B) {
         return Mathf.Acos(Vector3.Dot(Vector3.Normalize(A), Vector3.Normalize(B)));
     }
 
@@ -85,14 +88,18 @@ public class Player : MonoBehaviour
 
     // NEW CODE FOR A7
 
-    double howMuchUserRotated = angleBetweenVectors(prevForwardVector, oculusCam.transform.forward);
-    double directionUserRotated = (d(oculusCam.transform.position+prevForwardVector, oculusCam.transform.position, oculusCam.transform.position+oculusCam.transform.forward) < 0) ? 1 : -1;
-    double deltaYawRelativeToCenter = prevYawRelativeToCenter - angleBetweenVectors(oculusCam.transform.forward, VRTrackingOrigin.transform.position-oculusCam.transform.position);
+    float howMuchUserRotated = angleBetweenVectors(prevForwardVector, oculusCam.transform.forward);
+    float directionUserRotated = (d(oculusCam.transform.position+prevForwardVector, oculusCam.transform.position, oculusCam.transform.position+oculusCam.transform.forward) < 0) ? 1 : -1;
+    float deltaYawRelativeToCenter = prevYawRelativeToCenter - angleBetweenVectors(oculusCam.transform.forward, VRTrackingOrigin.transform.position-oculusCam.transform.position);
 
-    double distanceFromCenter = oculusCam.transform.localPosition.magnitude;
+    float distanceFromCenter = oculusCam.transform.localPosition.magnitude;
 
     // Q: error thrown with []
-    // double howMuchToAccelerate = ((deltaYawRelativeToCenter < 0) ? -decelerateThreshold[13%] : accelerateThreshold[30%]) * howMuchUserRotated * directionUserRotated * clamp(distanceFromCenter/longestDimensionOfPE/2, 0, 1);
+    float longestDimensionOfPE = VRTrackingOrigin.transform.localScale.x > VRTrackingOrigin.transform.localScale.z ?
+         VRTrackingOrigin.transform.localScale.x : VRTrackingOrigin.transform.localScale.z;
+
+    double howMuchToAccelerate = ((deltaYawRelativeToCenter < 0) ? -0.13 : 0.30) * howMuchUserRotated * directionUserRotated 
+        * Mathf.Clamp(distanceFromCenter/longestDimensionOfPE/2, 0, 1);
 
 
     // Q: I just made pivot a empty GameObject in the scene, is that alright?
@@ -102,7 +109,8 @@ public class Player : MonoBehaviour
     VRTrackingOrigin.transform.parent = pivot.transform;
 
     // Q: what is pivot?
-    // pivot.rotation.yaw += howMuchToAccelerate;
+    // THIS IS THE MISSING LINE
+    // pivot.transform.rotation.yaw += howMuchToAccelerate;
 
     // unparent pivot
     // Q: do we need to make pivot child null as well?
