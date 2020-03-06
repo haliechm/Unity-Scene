@@ -37,10 +37,8 @@ public class Player : MonoBehaviour
     // NEW FOR A7
     Vector3 prevForwardVector;
     float prevYawRelativeToCenter;
-    // public double longestDimensionOfPE;
     public GameObject VRTrackingOrigin;
 
-    // Q: are we supposed to make a GameObject to hold pivot?
     public GameObject pivot;
 
 
@@ -75,7 +73,7 @@ public class Player : MonoBehaviour
     }
 
     public float angleBetweenVectors(Vector3 A, Vector3 B) {
-        return Mathf.Acos(Vector3.Dot(Vector3.Normalize(A), Vector3.Normalize(B)));
+        return (Mathf.Acos(Vector3.Dot(Vector3.Normalize(A), Vector3.Normalize(B)))) * (180/Mathf.PI);
     }
 
  
@@ -93,29 +91,34 @@ public class Player : MonoBehaviour
     float deltaYawRelativeToCenter = prevYawRelativeToCenter - angleBetweenVectors(oculusCam.transform.forward, VRTrackingOrigin.transform.position-oculusCam.transform.position);
 
     float distanceFromCenter = oculusCam.transform.localPosition.magnitude;
-
-    // Q: error thrown with []
-    float longestDimensionOfPE = VRTrackingOrigin.transform.localScale.x > VRTrackingOrigin.transform.localScale.z ?
-         VRTrackingOrigin.transform.localScale.x : VRTrackingOrigin.transform.localScale.z;
-
-    double howMuchToAccelerate = ((deltaYawRelativeToCenter < 0) ? -0.13 : 0.30) * howMuchUserRotated * directionUserRotated 
-        * Mathf.Clamp(distanceFromCenter/longestDimensionOfPE/2, 0, 1);
+    print("distanceFromCenter"+distanceFromCenter);
+    // Q: I'm thinking something it scaling wrong here b/c of parenting
+    //float longestDimensionOfPE = VRTrackingOrigin.transform.localScale.x > VRTrackingOrigin.transform.localScale.z ?
+         //VRTrackingOrigin.transform.localScale.x : VRTrackingOrigin.transform.localScale.z;
+    float longestDimensionOfPE=0.1f;
+    float howMuchToAccelerate = ((deltaYawRelativeToCenter < 0) ? -0.13f : 0.30f) * howMuchUserRotated * directionUserRotated 
+        * Mathf.Clamp(distanceFromCenter/longestDimensionOfPE/2, 0.0f, 1.0f);
 
 
     // Q: I just made pivot a empty GameObject in the scene, is that alright?
     // Q: how to make vr tracking origin child of pivot parent
     // make VRTrackingOrigin child of a pivot parent located at oculusCam.position
-    pivot.transform.position = oculusCam.transform.position;
-    VRTrackingOrigin.transform.parent = pivot.transform;
-
-    // Q: what is pivot?
-    // THIS IS THE MISSING LINE
-    // pivot.transform.rotation.yaw += howMuchToAccelerate;
-
-    // unparent pivot
-    // Q: do we need to make pivot child null as well?
-    VRTrackingOrigin.transform.parent = null;
-
+    print("howmuchaccel "+howMuchToAccelerate);
+    if (Mathf.Abs(howMuchToAccelerate)>=0.0001f){
+        //pivot.transform.parent=null;
+        //pivot.transform.position = oculusCam.transform.position;
+        //this.transform.parent = pivot.transform;
+        
+        // Q: is pivot right?
+        // pivot.transform.rotation.yaw += howMuchToAccelerate;
+        // pivot.transform.rotation += howMuchToAccelerate
+        //pivot.transform.eulerAngles=new Vector3(pivot.transform.eulerAngles.x, pivot.transform.eulerAngles.y+(float)howMuchToAccelerate, pivot.transform.eulerAngles.z);
+        this.transform.RotateAround(oculusCam.transform.position,new Vector3(0,1,0),howMuchToAccelerate);
+        print("pivot transform "+pivot.transform.position+", "+oculusCam.transform.position);
+        // unparent pivot
+        // Q: do we need to make pivot child null as well?
+        this.transform.parent = null;
+    }
     prevForwardVector = oculusCam.transform.forward;
     prevYawRelativeToCenter = angleBetweenVectors(oculusCam.transform.forward, VRTrackingOrigin.transform.position - oculusCam.transform.position);
 
