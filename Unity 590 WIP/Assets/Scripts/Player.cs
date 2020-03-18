@@ -50,12 +50,12 @@ public class Player : MonoBehaviour
 
 
 
-
+        print("____________________PLAYER");
         justStarted = true;
         numThingsCollected = 0;
         winMessage = GameObject.Find("Win Message").GetComponent<TextMesh>();
         winMessage.gameObject.SetActive(false);
-        scoreMessage = GameObject.Find("Score Message").GetComponent<TextMesh>();
+       // scoreMessage = GameObject.Find("Score Message").GetComponent<TextMesh>();
 
 
         // NEW FOR A7
@@ -64,12 +64,14 @@ public class Player : MonoBehaviour
         prevForwardVector = oculusCam.transform.forward;
         prevYawRelativeToCenter = angleBetweenVectors(oculusCam.transform.forward, VRTrackingOrigin.transform.position-oculusCam.transform.position);
 
+        scoreMessage.text = "Halie\n# of Items Collected: " + numThingsCollected;
+
 
     }
 
     // FUNCTIONS FOR A7
     public float d(Vector3 A, Vector3 B, Vector3 C) {
-        return (A.x-B.x)*(C.y-B.y)-(A.y-B.y)*(C.x-B.x);
+        return (A.x-B.x)*(C.z-B.z)-(A.z-B.z)*(C.x-B.x);
     }
 
     public float angleBetweenVectors(Vector3 A, Vector3 B) {
@@ -81,46 +83,62 @@ public class Player : MonoBehaviour
     
     void Update()
     {
+        Debug.DrawLine(oculusCam.transform.position,oculusCam.transform.position+oculusCam.transform.forward,Color.red,1/30);
+        Debug.DrawLine(oculusCam.transform.position,oculusCam.transform.position+prevForwardVector,Color.green,1/30);
+
+        scoreMessage.text = "Halie: Number of Items Collected: " + numThingsCollected;
+
+
+        // NEW CODE FOR A7
+
+        float howMuchUserRotated = angleBetweenVectors(prevForwardVector, oculusCam.transform.forward);
+        if (howMuchUserRotated>0.01f){
+            print("_____________________"+oculusCam.transform.forward);
+            float directionUserRotated = (d(oculusCam.transform.position+prevForwardVector,oculusCam.transform.position, oculusCam.transform.position+oculusCam.transform.forward) > 0) ? 1 : -1;
+            
+            print("******************d is "+directionUserRotated+", howmuch="+howMuchUserRotated);
+            float deltaYawRelativeToCenter = prevYawRelativeToCenter - angleBetweenVectors(oculusCam.transform.forward, VRTrackingOrigin.transform.position-oculusCam.transform.position);
+
+            float distanceFromCenter = oculusCam.transform.localPosition.magnitude;
+            print("distanceFromCenter"+distanceFromCenter);
+            // Q: I'm thinking something it scaling wrong here b/c of parenting
+            //float longestDimensionOfPE = VRTrackingOrigin.transform.localScale.x > VRTrackingOrigin.transform.localScale.z ?
+                //VRTrackingOrigin.transform.localScale.x : VRTrackingOrigin.transform.localScale.z;
+            float longestDimensionOfPE=3.0f;
+            float howMuchToAccelerate = ((deltaYawRelativeToCenter < 0) ? -0.13f : 0.30f) * howMuchUserRotated * directionUserRotated 
+                * Mathf.Clamp(distanceFromCenter/longestDimensionOfPE/2, 0.0f, 1.0f);
+
+
+            // Q: I just made pivot a empty GameObject in the scene, is that alright?
+            // Q: how to make vr tracking origin child of pivot parent
+            // make VRTrackingOrigin child of a pivot parent located at oculusCam.position
+            print("howmuchaccel "+howMuchToAccelerate);
+            if (Mathf.Abs(howMuchToAccelerate)>=0.05f){
+                //pivot.transform.parent=null;
+                //pivot.transform.position = oculusCam.transform.position;
+                //this.transform.parent = pivot.transform;
+                
+                // Q: is pivot right?
+                // pivot.transform.rotation.yaw += howMuchToAccelerate;
+                // pivot.transform.rotation += howMuchToAccelerate
+                //pivot.transform.eulerAngles=new Vector3(pivot.transform.eulerAngles.x, pivot.transform.eulerAngles.y+(float)howMuchToAccelerate, pivot.transform.eulerAngles.z);
+                VRTrackingOrigin.transform.RotateAround(new Vector3(oculusCam.transform.position.x,0,oculusCam.transform.position.z),new Vector3(0,1.0f,0),howMuchToAccelerate);
+                //print("pivot transform "+pivot.transform.position+", "+oculusCam.transform.position);
+                // unparent pivot
+                // Q: do we need to make pivot child null as well?
+                //this.transform.parent = null;
+            }   
+        }
+        prevForwardVector = oculusCam.transform.forward;
+        prevYawRelativeToCenter = angleBetweenVectors(oculusCam.transform.forward, VRTrackingOrigin.transform.position - oculusCam.transform.position);
 
 
 
-    // NEW CODE FOR A7
-
-    float howMuchUserRotated = angleBetweenVectors(prevForwardVector, oculusCam.transform.forward);
-    float directionUserRotated = (d(oculusCam.transform.position+prevForwardVector, oculusCam.transform.position, oculusCam.transform.position+oculusCam.transform.forward) < 0) ? 1 : -1;
-    float deltaYawRelativeToCenter = prevYawRelativeToCenter - angleBetweenVectors(oculusCam.transform.forward, VRTrackingOrigin.transform.position-oculusCam.transform.position);
-
-    float distanceFromCenter = oculusCam.transform.localPosition.magnitude;
-    print("distanceFromCenter"+distanceFromCenter);
-    // Q: I'm thinking something it scaling wrong here b/c of parenting
-    //float longestDimensionOfPE = VRTrackingOrigin.transform.localScale.x > VRTrackingOrigin.transform.localScale.z ?
-         //VRTrackingOrigin.transform.localScale.x : VRTrackingOrigin.transform.localScale.z;
-    float longestDimensionOfPE=0.1f;
-    float howMuchToAccelerate = ((deltaYawRelativeToCenter < 0) ? -0.13f : 0.30f) * howMuchUserRotated * directionUserRotated 
-        * Mathf.Clamp(distanceFromCenter/longestDimensionOfPE/2, 0.0f, 1.0f);
 
 
-    // Q: I just made pivot a empty GameObject in the scene, is that alright?
-    // Q: how to make vr tracking origin child of pivot parent
-    // make VRTrackingOrigin child of a pivot parent located at oculusCam.position
-    print("howmuchaccel "+howMuchToAccelerate);
-    if (Mathf.Abs(howMuchToAccelerate)>=0.0001f){
-        //pivot.transform.parent=null;
-        //pivot.transform.position = oculusCam.transform.position;
-        //this.transform.parent = pivot.transform;
-        
-        // Q: is pivot right?
-        // pivot.transform.rotation.yaw += howMuchToAccelerate;
-        // pivot.transform.rotation += howMuchToAccelerate
-        //pivot.transform.eulerAngles=new Vector3(pivot.transform.eulerAngles.x, pivot.transform.eulerAngles.y+(float)howMuchToAccelerate, pivot.transform.eulerAngles.z);
-        this.transform.RotateAround(oculusCam.transform.position,new Vector3(0,1,0),howMuchToAccelerate);
-        print("pivot transform "+pivot.transform.position+", "+oculusCam.transform.position);
-        // unparent pivot
-        // Q: do we need to make pivot child null as well?
-        this.transform.parent = null;
-    }
-    prevForwardVector = oculusCam.transform.forward;
-    prevYawRelativeToCenter = angleBetweenVectors(oculusCam.transform.forward, VRTrackingOrigin.transform.position - oculusCam.transform.position);
+
+
+
 
 
 
@@ -133,37 +151,37 @@ public class Player : MonoBehaviour
             
             winMessage.gameObject.SetActive(true);
         }
-        scoreMessage.text = "Halie\n# of Items Collected: " + numThingsCollected;
+        // scoreMessage.text = "Halie\n# of Items Collected: " + numThingsCollected;
         
 
-    if (OVRInput.GetDown(OVRInput.RawButton.RHandTrigger)) {
+        if (OVRInput.GetDown(OVRInput.RawButton.RHandTrigger)) {
 
-       
+        
 
-        Collider[] overlappingThings = Physics.OverlapSphere(rightPointerObject.transform.position, 0.01f, collectiblesMask);
+            Collider[] overlappingThings = Physics.OverlapSphere(rightPointerObject.transform.position, 0.01f, collectiblesMask);
+        
+            if (overlappingThings.Length>0) {
+                attachGameObjectToAChildGameObject(overlappingThings[0].gameObject, rightPointerObject, AttachmentRule.KeepWorld, AttachmentRule.KeepWorld, AttachmentRule.KeepWorld, true);
+                thingIGrabbed = overlappingThings[0].gameObject.GetComponent<Things>();
+            
+            }
+        } else if (OVRInput.GetUp(OVRInput.RawButton.RHandTrigger)) {
+            letGo();
+        } else if (OVRInput.GetDown(OVRInput.RawButton.LHandTrigger)) {
     
-         if (overlappingThings.Length>0) {
-             attachGameObjectToAChildGameObject(overlappingThings[0].gameObject, rightPointerObject, AttachmentRule.KeepWorld, AttachmentRule.KeepWorld, AttachmentRule.KeepWorld, true);
-             thingIGrabbed = overlappingThings[0].gameObject.GetComponent<Things>();
+        Collider[] overlappingThings = Physics.OverlapSphere(leftPointerObject.transform.position, 0.01f, collectiblesMask);
+
+            if (overlappingThings.Length>0) {
+                attachGameObjectToAChildGameObject(overlappingThings[0].gameObject, leftPointerObject, AttachmentRule.KeepWorld, AttachmentRule.KeepWorld, AttachmentRule.KeepWorld, true);
+                thingIGrabbed = overlappingThings[0].gameObject.GetComponent<Things>();
         
-         }
-    } else if (OVRInput.GetUp(OVRInput.RawButton.RHandTrigger)) {
-        letGo();
-    } else if (OVRInput.GetDown(OVRInput.RawButton.LHandTrigger)) {
-   
-    Collider[] overlappingThings = Physics.OverlapSphere(leftPointerObject.transform.position, 0.01f, collectiblesMask);
+            }
+        } else if(OVRInput.GetUp(OVRInput.RawButton.LHandTrigger)) {
+            letGo();
+        }
 
-         if (overlappingThings.Length>0) {
-            attachGameObjectToAChildGameObject(overlappingThings[0].gameObject, leftPointerObject, AttachmentRule.KeepWorld, AttachmentRule.KeepWorld, AttachmentRule.KeepWorld, true);
-            thingIGrabbed = overlappingThings[0].gameObject.GetComponent<Things>();
-      
-         }
-    } else if(OVRInput.GetUp(OVRInput.RawButton.LHandTrigger)) {
-    letGo();
+    
     }
-
-   
-}
 
     void letGo(){
         if (thingIGrabbed){
