@@ -40,6 +40,9 @@ public class Player : MonoBehaviour
     public GameObject VRTrackingOrigin;
 
     public GameObject pivot;
+    
+    // TRANSLATIONAL GAIN
+    Vector3 prevLocation;
 
 
 
@@ -65,6 +68,9 @@ public class Player : MonoBehaviour
         prevYawRelativeToCenter = angleBetweenVectors(oculusCam.transform.forward, VRTrackingOrigin.transform.position-oculusCam.transform.position);
 
         scoreMessage.text = "Halie\n# of Items Collected: " + numThingsCollected;
+        
+        // TRANSLATIONAL GAIN
+        prevLocation = oculusCam.transform.position();
 
 
     }
@@ -131,6 +137,19 @@ public class Player : MonoBehaviour
         }
         prevForwardVector = oculusCam.transform.forward;
         prevYawRelativeToCenter = angleBetweenVectors(oculusCam.transform.forward, VRTrackingOrigin.transform.position - oculusCam.transform.position);
+
+
+
+
+        // TRANSLATIONAL GAIN
+        Vector3 trajectoryVector = oculusCam.transform.position-prevLocation;
+        Vector3 howMuchToTranslate = (Vector3.Normalize(trajectoryVector))*0.75f;
+        VRTrackingOrigin.transform.position += howMuchToTranslate;
+        prevLocation = oculusCam.transform.position;
+
+
+
+
 
 
 
